@@ -1,10 +1,13 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ai_powered_recipe_finder/providers/generated_recipes_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../models/recipe.dart';
 import '../screens/recipe_details.dart';
 
 class ListCardWidget extends StatefulWidget {
-  const ListCardWidget({super.key});
+  final Recipe recipe;
+  const ListCardWidget({required this.recipe, super.key});
 
   @override
   State<ListCardWidget> createState() => _ListCardState();
@@ -13,8 +16,26 @@ class ListCardWidget extends StatefulWidget {
 class _ListCardState extends State<ListCardWidget> {
   bool isSaved = false;
 
+  void addRemoveRecipeFromFavourites(){
+    if (isSaved == false) {
+      Provider.of<GeneratedRecipesProvider>(context, listen: false)
+          .addFavoriteRecipe(widget.recipe);
+    } else {
+      Provider.of<GeneratedRecipesProvider>(context, listen: false)
+          .removeFavoriteRecipe(widget.recipe);
+    }
+    setState(() {
+      isSaved = Provider.of<GeneratedRecipesProvider>(context,
+          listen: false)
+          .containsRecipe(widget.recipe);
+    });
+  }
+
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) {
+    isSaved = Provider.of<GeneratedRecipesProvider>(context)
+        .containsRecipe(widget.recipe);
+    return Card(
       color: Colors.white,
       child: SizedBox(
         height: 100,
@@ -25,25 +46,25 @@ class _ListCardState extends State<ListCardWidget> {
           leading: const Image(
             image: AssetImage('app_assets/images/eating.png'),
           ),
-          title: const Text(
-            'Recipe 1535',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            widget.recipe.name ?? '',
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: Text('10 minutes'),
+          subtitle: Text(widget.recipe.cookingTime ?? ''),
           trailing: IconButton(
-            onPressed: () {
-              setState(() {
-                isSaved = !isSaved;
-              });
-            },
+            onPressed: addRemoveRecipeFromFavourites,
             icon: Image.asset(isSaved
                 ? 'app_assets/images/colored_heart.png'
                 : 'app_assets/images/heart.png'),
           ),
-          onTap: (){Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => RecipeDetailsScreen()));},
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RecipeDetailsScreen(
+                          recipe: widget.recipe,
+                        )));
+          },
         ),
-      ));
+      ));}
 }

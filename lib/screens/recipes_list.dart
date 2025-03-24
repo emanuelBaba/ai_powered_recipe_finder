@@ -1,6 +1,8 @@
-import 'package:ai_powered_recipe_finder/screens/recipe_details.dart';
 import 'package:ai_powered_recipe_finder/widgets/list_card_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/generated_recipes_provider.dart';
 
 class RecipesListScreen extends StatefulWidget {
   const RecipesListScreen({super.key});
@@ -11,6 +13,26 @@ class RecipesListScreen extends StatefulWidget {
 
 class _RecipesListState extends State<RecipesListScreen> {
   final searchBarController = SearchController();
+  bool isLoading = false;
+
+  void _getRecipes(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    Provider.of<GeneratedRecipesProvider>(context, listen: false)
+        .generateRecipes(value)
+        .then((final _) {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +50,7 @@ class _RecipesListState extends State<RecipesListScreen> {
                   color: Colors.black,
                 )
               ],
-              onSubmitted: (final value) {
-                setState(() {});
-              },
+              onSubmitted: (final value) => _getRecipes(value),
             ),
             const SizedBox(height: 20),
             Align(
@@ -44,20 +64,36 @@ class _RecipesListState extends State<RecipesListScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                  itemCount: 2,
-                  itemBuilder: (final listCtx, final index) =>
-                      const ListCardWidget()),
-            ),
-            if (searchBarController.text.isNotEmpty)
+            !isLoading
+                ? Expanded(child: Consumer<GeneratedRecipesProvider>(
+                    builder: (final context, final data, final child) {
+                    final listOfRecipes = searchBarController.text.isNotEmpty
+                        ? data.listOfRecipes
+                        : data.listOfFavorites;
+                    return listOfRecipes != null && listOfRecipes.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: listOfRecipes.length,
+                            itemBuilder: (final listCtx, final index) =>
+                                ListCardWidget(
+                              recipe: listOfRecipes[index],
+                            ),
+                          )
+                        : const Text('\nNo recipes...');
+                  }))
+                : const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+            if (searchBarController.text.isNotEmpty && !isLoading)
               FilledButton(
                 onPressed: () {
-
+                  final input = searchBarController.text;
+                  if (input.isNotEmpty) {
+                    _getRecipes(input);
+                  }
                 },
                 style: ButtonStyle(
-                    backgroundColor:
-                        WidgetStatePropertyAll(Color.fromRGBO(101, 85, 143, 1)),
+                    backgroundColor: const WidgetStatePropertyAll(
+                        Color.fromRGBO(101, 85, 143, 1)),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)))),
                 child: const Text('I don\'t like these'),
