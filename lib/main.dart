@@ -26,9 +26,10 @@ class MyApp extends StatelessWidget {
           shadowColor: const WidgetStatePropertyAll(Colors.transparent),
           shape: WidgetStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
-                side: const BorderSide(
-                    color: Color.fromRGBO(217, 217, 217, 1), width: 1),
-                borderRadius: BorderRadius.circular(45)),
+              side: const BorderSide(
+                  color: Color.fromRGBO(217, 217, 217, 1), width: 1),
+              borderRadius: BorderRadius.circular(45),
+            ),
           ),
         ),
       ),
