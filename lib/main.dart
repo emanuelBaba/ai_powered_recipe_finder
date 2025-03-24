@@ -1,6 +1,7 @@
 import 'package:ai_powered_recipe_finder/providers/generated_recipes_provider.dart';
 import 'package:ai_powered_recipe_finder/screens/recipes_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,7 @@ void main() {
   Gemini.init(
       apiKey: 'AIzaSyDS-spFaMR3_1ByuqJgtLBCpzo6SeC4Zig');
   runApp(const MyApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
 class MyApp extends StatelessWidget {

@@ -14,6 +14,7 @@ class RecipeDetailsScreen extends StatefulWidget {
 
 class _RecipeDetailsState extends State<RecipeDetailsScreen> {
   bool isSaved = false;
+
   void addRemoveRecipeFromFavourites() {
     if (isSaved == false) {
       Provider.of<GeneratedRecipesProvider>(context, listen: false)
